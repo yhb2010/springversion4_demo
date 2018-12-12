@@ -1,0 +1,5 @@
+安装activemq
+运行F:\activemq\bin\win64\activemq.bat
+访问：http://localhost:8161/admin/
+admin admin
+

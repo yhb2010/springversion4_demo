@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache>
+	<!-- timeToLiveSeconds：存活时间；maxBytesLocalHeap：最大堆存储 -->
+	<cache name="spittleCache" maxBytesLocalHeap="50m" timeToLiveSeconds="100">
+	</cache>
+</ehcache>

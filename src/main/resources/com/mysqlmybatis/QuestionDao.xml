@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapper namespace="com.dynamicproxy.DemoInterface">
+
+	<select id="getById" resultType="com.mysqlmybatis.Question" parameterType="int">
+		select questionId, content
+		from qz_question
+		where questionId = #{questionId}
+	</select>
+
+</mapper>

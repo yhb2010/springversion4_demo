@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<environments>
+		<environment id="development">
+			<dataSource type="POOLED">
+				<!-- 上面指定了数据库配置文件， 配置文件里面也是对应的这四个属性 -->
+				<property name="driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />
+				<property name="url" value="jdbc:sqlserver://127.0.0.250:port;DatabaseName=dbName" />
+				<property name="username" value="123" />
+				<property name="password" value="123" />
+			</dataSource>
+		</environment>
+	</environments>
+
+	<mappers>
+		<!-- 第一种方式：通过resource指定 -->
+		<mapper resource="com/mysqlmybatis/QuestionDao.xml" />
+	</mappers>
+</configuration>

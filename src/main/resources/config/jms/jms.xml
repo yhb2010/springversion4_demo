@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jms="http://www.springframework.org/schema/jms"
+	xmlns:amq="http://activemq.apache.org/schema/core" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://activemq.apache.org/schema/core
+        http://activemq.apache.org/schema/core/activemq-core.xsd
+        http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<!-- ActiveMQ为我们提供了一个PooledConnectionFactory，通过往里面注入一个ActiveMQConnectionFactory可以用来将Connection、Session和MessageProducer池化，这样可以大大的减少我们的资源消耗。 -->
+	<bean id="pooledConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
+		<property name="connectionFactory" ref="targetConnectionFactory" />
+		<property name="maxConnections" value="10" />
+	</bean>
+
+	<!-- ConnectionFactory是用于产生到JMS服务器的链接的，Spring为我们提供了多个ConnectionFactory，有SingleConnectionFactory和CachingConnectionFactory。SingleConnectionFactory对于建立JMS服务器链接的请求会一直返回同一个链接，并且会忽略Connection的close方法调用。 -->
+	<!-- Spring用于管理真正的ConnectionFactory的ConnectionFactory -->
+	<bean id="connectionFactory"
+		class="org.springframework.jms.connection.SingleConnectionFactory">
+		<!-- 目标ConnectionFactory对应真实的可以产生JMS Connection的ConnectionFactory -->
+		<property name="targetConnectionFactory" ref="pooledConnectionFactory" />
+	</bean>
+
+	<!-- 真正可以产生Connection的ConnectionFactory，由对应的 JMS服务厂商提供 -->
+	<bean id="targetConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+		<!-- brokerURL：指定连接本地的61616端口 -->
+		<property name="brokerURL" value="tcp://localhost:61616" />
+		<!-- 是否异步发送 -->
+		<property name="useAsyncSend" value="true" />
+	</bean>
+
+	<!--这个是队列目的地，点对点的 -->
+	<amq:queue id="queue" physicalName="user.alert.queue" />
+	<!--这个是主题目的地，一对多的 -->
+	<amq:topic id="topic" physicalName="user.alert.topic" />
+
+	<!-- Spring提供的JMS工具类，它可以进行消息发送、接收等 -->
+	<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<!-- 这个connectionFactory对应的是我们定义的Spring提供的那个ConnectionFactory对象 -->
+		<property name="connectionFactory" ref="connectionFactory" />
+		<!-- 指定默认的目的地名称：user.alert.queue，但它仅仅是个名称，不知道目的地的类型 -->
+		<property name="defaultDestinationName" value="user.alert.queue" />
+	</bean>
+
+	<!-- 基于pojo的消息接收器 -->
+	<!-- 消息监听容器是一个特殊的bean，它可以监控jms目的地并等待消息到达，一旦有消息到达，它取出消息，然后把消息传给任意一个对此消息感兴趣的消息监听器 -->
+	<!-- 一旦ref的bean实现了MessageListener，就不需要配置method了，默认会调用onMessage() -->
+	<jms:listener-container connection-factory="connectionFactory">
+		<jms:listener destination="user.alert.queue" ref="alertMessageReceiver" method="getAlert" />
+	</jms:listener-container>
+
+</beans>

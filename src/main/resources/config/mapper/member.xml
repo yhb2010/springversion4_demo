@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dynamicproxy.DemoInterface">
+
+	<insert id="addUser">
+		<![CDATA[
+		insert into mstudentTest(student_name, student_score, student_phone)
+		values (#{userName}, 0, #{telPhone})
+		]]>
+	</insert>
+
+	<select id="getByUserName" resultType="com.version4.chapter10.domain.Member">
+		select student_name userName, student_phone telPhone
+		from mstudentTest
+		where student_name = #{userName}
+	</select>
+
+</mapper>
